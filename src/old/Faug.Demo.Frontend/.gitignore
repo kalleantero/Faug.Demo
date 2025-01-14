@@ -1,0 +1,41 @@
+# Dependency directory
+# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
+node_modules
+public/styleguide
+
+# Produced files for build and deploy
+bin/
+dist/
+build/
+artifacts/
+obj/
+
+dump
+
+*.log
+
+#local rc files
+.jsinspectrc
+#applicationInsights
+*.ai.json
+# service worker to be generated in production
+public/if-mybusiness-sw.js
+
+out/
+.vscode/settings.json
+.test_output
+xunit.xml
+
+#env
+.env.dev
+
+# editor/ide
+.vs/
+.idea/
+
+/src/MyBusiness.Bff/obj
+/src/MyBusiness.Bff/bin
+/src/MyBusiness.Frontend/obj
+**/.vs
+/src/MyBusiness.Frontend/Properties/PublishProfiles
+/src/MyBusiness.Frontend/Properties/ServiceDependencies
