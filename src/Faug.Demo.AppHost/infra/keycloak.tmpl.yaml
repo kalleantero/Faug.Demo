@@ -14,33 +14,38 @@ properties:
         autoConfigureDataProtection: true
     ingress:
       external: true
-      targetPort: {{ targetPortOrDefault 8080 }}
+      targetPort: 8080
       transport: http
       allowInsecure: false
     registries:
       - server: {{ .Env.AZURE_CONTAINER_REGISTRY_ENDPOINT }}
         identity: {{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}
+    secrets:
+      - name: keycloak-admin-password
+        value: '{{ securedParameter "keycloak_password" }}'
   template:
+    volumes:
+      - name: keycloak-faugdemoapphost32c5b5b8c5keycloakdata
+        storageType: AzureFile
+        storageName: {{ .Env.SERVICE_KEYCLOAK_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKDATA_NAME }} 
     containers:
       - image: {{ .Image }}
-        name: weatherapi
+        name: keycloak
+        args:
+          - start
+          - --import-realm
         env:
           - name: AZURE_CLIENT_ID
             value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
-          - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
-            value: "true"
-          - name: HTTP_PORTS
-            value: '{{ targetPortOrDefault 0 }}'
-          - name: OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES
-            value: "true"
-          - name: OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES
-            value: "true"
-          - name: OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY
-            value: in_memory
-          - name: services__keycloak__http__0
-            value: http://keycloak.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: KEYCLOAK_ADMIN
+            value: '{{ parameter "keycloak_username" }}'
+          - name: KEYCLOAK_ADMIN_PASSWORD
+            secretRef: keycloak-admin-password
+        volumeMounts:
+          - volumeName: keycloak-faugdemoapphost32c5b5b8c5keycloakdata
+            mountPath: /opt/keycloak/data
     scale:
       minReplicas: 1
 tags:
-  azd-service-name: weatherapi
-  aspire-resource-name: weatherapi
+  azd-service-name: keycloak
+  aspire-resource-name: keycloak

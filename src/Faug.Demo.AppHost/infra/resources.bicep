@@ -45,6 +45,32 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
   tags: tags
 }
 
+resource storageVolume 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+  name: 'vol${resourceToken}'
+  location: location
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  properties: {
+    largeFileSharesState: 'Enabled'
+  }
+}
+
+resource storageVolumeFileService 'Microsoft.Storage/storageAccounts/fileServices@2022-05-01' = {
+  parent: storageVolume
+  name: 'default'
+}
+
+resource keycloakFaugdemoapphost32c5b5b8c5KeycloakDataFileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-05-01' = {
+  parent: storageVolumeFileService
+  name: take('${toLower('keycloak')}-${toLower('faugdemoapphost32c5b5b8c5keycloakdata')}', 60)
+  properties: {
+    shareQuota: 1024
+    enabledProtocols: 'SMB'
+  }
+}
+
 resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-preview' = {
   name: 'cae-${resourceToken}'
   location: location
@@ -81,6 +107,19 @@ resource explicitContributorUserRoleAssignment 'Microsoft.Authorization/roleAssi
   }
 }
 
+resource keycloakFaugdemoapphost32c5b5b8c5KeycloakDataStore 'Microsoft.App/managedEnvironments/storages@2023-05-01' = {
+  parent: containerAppEnvironment
+  name: take('${toLower('keycloak')}-${toLower('faugdemoapphost32c5b5b8c5keycloakdata')}', 32)
+  properties: {
+    azureFile: {
+      shareName: keycloakFaugdemoapphost32c5b5b8c5KeycloakDataFileShare.name
+      accountName: storageVolume.name
+      accountKey: storageVolume.listKeys().keys[0].value
+      accessMode: 'ReadWrite'
+    }
+  }
+}
+
 output MANAGED_IDENTITY_CLIENT_ID string = managedIdentity.properties.clientId
 output MANAGED_IDENTITY_NAME string = managedIdentity.name
 output MANAGED_IDENTITY_PRINCIPAL_ID string = managedIdentity.properties.principalId
@@ -92,3 +131,5 @@ output AZURE_CONTAINER_REGISTRY_NAME string = containerRegistry.name
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = containerAppEnvironment.name
 output AZURE_CONTAINER_APPS_ENVIRONMENT_ID string = containerAppEnvironment.id
 output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = containerAppEnvironment.properties.defaultDomain
+output SERVICE_KEYCLOAK_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKDATA_NAME string = keycloakFaugdemoapphost32c5b5b8c5KeycloakDataStore.name
+output AZURE_VOLUMES_STORAGE_ACCOUNT string = storageVolume.name

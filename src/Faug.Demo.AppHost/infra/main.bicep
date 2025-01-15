@@ -12,6 +12,9 @@ param location string
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
+@secure()
+param keycloak_password string
+param keycloak_username string
 
 var tags = {
   'azd-env-name': environmentName
@@ -51,4 +54,6 @@ output AZURE_CONTAINER_REGISTRY_NAME string = resources.outputs.AZURE_CONTAINER_
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_NAME
 output AZURE_CONTAINER_APPS_ENVIRONMENT_ID string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_ID
 output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN
+output SERVICE_KEYCLOAK_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKDATA_NAME string = resources.outputs.SERVICE_KEYCLOAK_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKDATA_NAME
 output SQL_MYBUSINESS_SQLSERVERFQDN string = sql_mybusiness.outputs.sqlServerFqdn
+output AZURE_VOLUMES_STORAGE_ACCOUNT string = resources.outputs.AZURE_VOLUMES_STORAGE_ACCOUNT

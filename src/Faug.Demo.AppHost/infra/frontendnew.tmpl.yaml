@@ -16,7 +16,7 @@ properties:
       external: true
       targetPort: {{ targetPortOrDefault 8080 }}
       transport: http
-      allowInsecure: true
+      allowInsecure: false
     registries:
       - server: {{ .Env.AZURE_CONTAINER_REGISTRY_ENDPOINT }}
         identity: {{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}
@@ -37,6 +37,12 @@ properties:
             value: "true"
           - name: OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY
             value: in_memory
+          - name: services__keycloak__http__0
+            value: http://keycloak.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__weatherapi__http__0
+            value: http://weatherapi.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__weatherapi__https__0
+            value: https://weatherapi.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
     scale:
       minReplicas: 1
 tags:

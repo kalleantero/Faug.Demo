@@ -1,0 +1,6 @@
+@Faug.Demo.Location_HostAddress = http://localhost:5205
+
+GET {{Faug.Demo.Location_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
