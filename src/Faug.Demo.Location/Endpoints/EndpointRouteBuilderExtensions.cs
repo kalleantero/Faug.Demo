@@ -1,14 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Faug.Demo.Location.Models;
-using System.Text.Json;
-using System.IO;
+﻿using System.Text.Json;
 using System.Reflection;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text;
 
 namespace Faug.Demo.Location.Endpoints
 {
@@ -17,21 +10,33 @@ namespace Faug.Demo.Location.Endpoints
         internal static IEndpointConventionBuilder MapEndpoints(
             this IEndpointRouteBuilder endpoints)
         {
-            var group = endpoints.MapGroup("/api/locations/{country}");
+            var group = endpoints.MapGroup("/api/locations");
 
-            group.MapGet("/", GetLocationsByCountry)
-                .WithName("GetLocationsByCountry")
-                .AllowAnonymous()
-                .WithOpenApi();
+            group.MapGet("/{country}", async (string country, IDistributedCache cache) =>
+            {
+                var cachedLocations = await cache.GetAsync("locations");
+
+                if (cachedLocations is null)
+                {
+                    var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\"+country+".json");
+                    var jsonString = File.ReadAllText(fileName);
+                    var locations = JsonSerializer.Deserialize<Models.Location[]>(jsonString)!;
+
+                    await cache.SetAsync("locations", Encoding.UTF8.GetBytes(JsonSerializer.Serialize(locations)), new()
+                    {
+                        AbsoluteExpiration = DateTime.Now.AddSeconds(10)
+                    }); ;
+
+                    return Results.Ok(locations);
+                }
+
+                return Results.Ok(JsonSerializer.Deserialize<Models.Location[]>(cachedLocations));
+            })
+            .WithName("GetLocationsByCountry")
+            .AllowAnonymous()
+            .WithOpenApi();
 
             return group;
-        }
-
-        static Faug.Demo.Location.Models.Location[] GetLocationsByCountry(string country)
-        {
-            string fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\fi.json");
-            string jsonString = File.ReadAllText(fileName);
-            return JsonSerializer.Deserialize<Faug.Demo.Location.Models.Location[]>(jsonString)!;
         }
 
     }
