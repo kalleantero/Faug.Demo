@@ -16,16 +16,8 @@ var frontendClientSecret = builder.AddParameter("frontend-client-secret", secret
 
 //************KEYCLOAK************
 
-var tenantServiceCommand = Path.GetFullPath("../Faug.Demo.Weather.Migration/bin/Debug/net8.0/Faug.Demo.Weather.Migration.exe");
-var tenantServiceWorkingDirectory = Path.GetFullPath("../Faug.Demo.Weather.Migration/bin/Debug/net8.0/");
-var tenantService = builder.AddExecutable("tenantService", tenantServiceCommand, tenantServiceWorkingDirectory)
-    .WithEndpoint(8020, 8021, "https", "tsEndpoint", "ASPNETCORE_HTTPS_PORTS");
-
-
 var username = builder.AddParameter("keycloak-username");
 var password = builder.AddParameter("keycloak-password", secret: true);
-
-
 var keycloak = builder.AddKeycloak("keycloak", 8080, username, password)
                                 .WithDataVolume()
                                 .WithExternalHttpEndpoints()
@@ -41,15 +33,12 @@ var sqlPassword = builder.AddParameter("sql-password", secret: true);
 var sql = builder.AddSqlServer("sql", sqlPassword, 61928)
                  .AddDatabase("sqldata");
 
-
 var weatherapi = builder.AddProject<Projects.Faug_Demo_Weather_Api>("weatherapi")
            .WithReference(keycloak)
            .WithExternalHttpEndpoints()
            .WaitFor(keycloak)
            .WithReference(sql)
            .WaitFor(sql);
-
-//Aspire.Hosting.Azure 
 
 //************LOCATION API************
 
@@ -62,7 +51,6 @@ var location = builder.AddProject<Projects.Faug_Demo_Location>("location")
            .WithReference(redis)
            .WaitFor(redis);
 
-
 //************FRONTEND************
 
 var frontend = builder.AddProject<Projects.Faug_Demo_Frontend>("frontendnew")
@@ -74,6 +62,16 @@ var frontend = builder.AddProject<Projects.Faug_Demo_Frontend>("frontendnew")
        .WaitFor(location)
        .WithReference(location);
 
+//************CONSOLE APP************
+
+/*
+var consoleAppCommand = Path.GetFullPath("../Faug.Demo.Weather.Migration/bin/Debug/net8.0/Faug.Demo.Weather.Migration.exe");
+var consoleAppWorkingDirectory = Path.GetFullPath("../Faug.Demo.Weather.Migration/bin/Debug/net8.0/");
+var consoleApp = builder.AddExecutable("tenantService", consoleAppCommand, consoleAppWorkingDirectory)
+    .WithEndpoint(8020, 8021, "https", "tsEndpoint", "ASPNETCORE_HTTPS_PORTS");
+*/
+
+//************NPM APP************
 
 /*
 builder.AddNpmApp("react", "../AspireJavaScript.React")
@@ -84,23 +82,5 @@ builder.AddNpmApp("react", "../AspireJavaScript.React")
     .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 */
-
-
-
-
-
-
-/*
-builder.AddNpmApp("react", "../AspireJavaScript.React")
-    .WithReference(weatherapi)
-    .WaitFor(weatherapi)
-    .WithEnvironment("BROWSER", "none") // Disable opening browser on npm start
-    .WithHttpEndpoint(env: "PORT")
-    .WithExternalHttpEndpoints()
-    .PublishAsDockerFile();
-*/
-
-
-
 
 builder.Build().Run();
