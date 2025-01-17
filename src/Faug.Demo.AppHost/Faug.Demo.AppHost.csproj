@@ -30,7 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Faug.Demo.Frontend\Faug.Demo.Frontend.csproj" />
-    <ProjectReference Include="..\Faug.Demo.Location\Faug.Demo.Location.csproj" />
+    <ProjectReference Include="..\Faug.Demo.Location.Api\Faug.Demo.Location.Api.csproj" />
     <ProjectReference Include="..\Faug.Demo.Weather.Api\Faug.Demo.Weather.Api.csproj" />
   </ItemGroup>
 

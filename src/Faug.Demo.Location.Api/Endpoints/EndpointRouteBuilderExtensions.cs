@@ -3,7 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 
-namespace Faug.Demo.Location.Endpoints
+namespace Faug.Demo.Location.Api.Endpoints
 {
     internal static class EndpointRouteBuilderExtensions
     {
@@ -18,7 +18,7 @@ namespace Faug.Demo.Location.Endpoints
 
                 if (cachedLocations is null)
                 {
-                    var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\"+country+".json");
+                    var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\" + country + ".json");
                     var jsonString = File.ReadAllText(fileName);
                     var locations = JsonSerializer.Deserialize<Models.Location[]>(jsonString)!;
 

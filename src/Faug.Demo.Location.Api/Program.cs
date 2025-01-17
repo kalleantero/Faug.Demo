@@ -1,4 +1,4 @@
-using Faug.Demo.Location.Endpoints;
+using Faug.Demo.Location.Api.Endpoints;
 using Faug.Demo.ServiceDefaults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;

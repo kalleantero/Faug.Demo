@@ -1,4 +1,4 @@
-﻿namespace Faug.Demo.Location.Models
+﻿namespace Faug.Demo.Location.Api.Models
 {
     public class Location
     {

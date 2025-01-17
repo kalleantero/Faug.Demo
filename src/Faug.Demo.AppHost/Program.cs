@@ -25,15 +25,12 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, username, password)
 
 //************WEATHER API************
 
-var weatherDbServerName = builder.AddParameter("weather-db-server-name");
-var weatherDbName = builder.AddParameter("weather-db-name");
-var weatherDbPassword = builder.AddParameter("weather-db-password", secret: true);
 var sqlPassword = builder.AddParameter("sql-password", secret: true);
 
-var sql = builder.AddSqlServer("sql", sqlPassword, 61928)
-                 .AddDatabase("sqldata");
+var sql = builder.AddSqlServer("weather-db-server", sqlPassword, 61928)
+                 .AddDatabase("weather-db");
 
-var weatherapi = builder.AddProject<Projects.Faug_Demo_Weather_Api>("weatherapi")
+var weatherapi = builder.AddProject<Projects.Faug_Demo_Weather_Api>("weather-api")
            .WithReference(keycloak)
            .WithExternalHttpEndpoints()
            .WaitFor(keycloak)
@@ -44,7 +41,7 @@ var weatherapi = builder.AddProject<Projects.Faug_Demo_Weather_Api>("weatherapi"
 
 var redis = builder.AddRedis("location-cache");
 
-var location = builder.AddProject<Projects.Faug_Demo_Location>("location")
+var location = builder.AddProject<Projects.Faug_Demo_Location_Api>("location-api")
            .WithExternalHttpEndpoints()
            .WithReference(keycloak)
            .WaitFor(keycloak)
@@ -53,7 +50,7 @@ var location = builder.AddProject<Projects.Faug_Demo_Location>("location")
 
 //************FRONTEND************
 
-var frontend = builder.AddProject<Projects.Faug_Demo_Frontend>("frontendnew")
+var frontend = builder.AddProject<Projects.Faug_Demo_Frontend>("frontend")
        .WithExternalHttpEndpoints()
        .WaitFor(keycloak)
        .WithReference(keycloak)

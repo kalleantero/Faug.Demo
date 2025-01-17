@@ -53,7 +53,7 @@ builder.Services.AddAuthorization(options =>
 
 
 // Register DbContext class
-builder.AddSqlServerDbContext<WeatherContext>("sqldata");
+builder.AddSqlServerDbContext<WeatherContext>("weather-db");
 
 var app = builder.Build();
 
