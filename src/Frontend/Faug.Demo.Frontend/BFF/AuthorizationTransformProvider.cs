@@ -4,7 +4,7 @@ using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Transforms;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Faug.Demo.Frontend.Extensions
+namespace Faug.Demo.Frontend.BFF
 {
 
     /// <summary>

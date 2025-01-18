@@ -1,20 +1,17 @@
 import React, { Component } from 'react';
-export class Forecast extends Component {
+import { useParams } from 'react-router';
+
+export class ForecastDetails extends Component {
 
   constructor(props) {
     super(props);
-      this.state = { forecasts: [], loading: true };
+      this.state = { forecasts: [], city: this.props.match.params.id, loading: true };
   }
 
-    componentDidMount() {
-
-    const search = window.location.search;
-    const params = new URLSearchParams(search);
-    const city = params.get('city');
-    this.setState({ city: city, loading: false });
-
-    this.populateWeatherData(city);
-}
+  componentDidMount()
+  {
+    this.populateWeatherData(this.state.city);
+  }
 
   static renderForecastsTable(forecasts) {
     return (
@@ -44,7 +41,7 @@ export class Forecast extends Component {
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
-        : Forecast.renderForecastsTable(this.state.forecasts);
+        : ForecastDetails.renderForecastsTable(this.state.forecasts);
 
     return (
         <div>
@@ -56,7 +53,7 @@ export class Forecast extends Component {
 
     async populateWeatherData(city) {
         const response = await fetch('/api/weather/locations/' + city );
-    const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
+        const data = await response.json();
+        this.setState({ forecasts: data, loading: false });
   }
 }

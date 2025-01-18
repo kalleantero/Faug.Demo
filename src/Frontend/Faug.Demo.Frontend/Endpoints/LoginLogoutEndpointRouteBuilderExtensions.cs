@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace Faug.Demo.Frontend.Extensions
+namespace Faug.Demo.Frontend.Endpoints
 {
     internal static class LoginLogoutEndpointRouteBuilderExtensions
     {
         internal static IEndpointConventionBuilder MapLoginAndLogout(
             this IEndpointRouteBuilder endpoints)
         {
-            var group = endpoints.MapGroup("authentication");
+            var group = endpoints.MapGroup("auth");
 
             group.MapGet(pattern: "/login", OnLogin).AllowAnonymous();
             group.MapPost(pattern: "/logout", OnLogout);
@@ -24,7 +24,7 @@ namespace Faug.Demo.Frontend.Extensions
         static ChallengeHttpResult OnLogin() =>
             TypedResults.Challenge(properties: new AuthenticationProperties
             {
-                RedirectUri = "/"
+                RedirectUri = "/locations"
             });
 
         static SignOutHttpResult OnLogout() =>
@@ -34,7 +34,7 @@ namespace Faug.Demo.Frontend.Extensions
             },
             [
                 CookieAuthenticationDefaults.AuthenticationScheme,
-            OpenIdConnectDefaults.AuthenticationScheme
+                OpenIdConnectDefaults.AuthenticationScheme
             ]);
     }
 }

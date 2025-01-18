@@ -1,4 +1,3 @@
-using Faug.Demo.Frontend.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +8,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using Faug.Demo.ServiceDefaults;
+using Faug.Demo.Frontend.BFF;
+using Faug.Demo.Frontend.Endpoints;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,8 +19,6 @@ var builder = WebApplication.CreateBuilder(args);
 //************ASPIRE STUFF************
 
 builder.AddServiceDefaults();
-
-//builder.Services.AddControllersWithViews();
 
 //************SPA CONFIG************
 
@@ -115,7 +116,6 @@ app.UseAuthentication();
 // Enable routing middleware in pipeline
 app.UseAuthorization();
 
-
 //************ENDPOINTS************
 
 app.UseCors();
@@ -125,21 +125,11 @@ app.MapDefaultEndpoints();
 #pragma warning disable ASP0014
 app.UseEndpoints(endpoints =>
 {
-    /*
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller}/{action=Index}/{id?}");
-    */
-
     endpoints.MapReverseProxy();
-    //endpoints.MapLoginAndLogout();
-    endpoints.MapLoginEndpoints();
-
-    //endpoints.MapControllers();
+    endpoints.MapLoginAndLogout();
 });
 #pragma warning restore ASP0014
 
-app.MapLoginAndLogout();
 
 //************SPA CONFIG************
 
