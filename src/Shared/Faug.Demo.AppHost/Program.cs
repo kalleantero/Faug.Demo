@@ -1,3 +1,4 @@
+using Aspire.Hosting;
 using Azure.Provisioning;
 using Faug.Demo.AppHost.Util;
 using k8s.Models;
@@ -18,7 +19,7 @@ var frontendClientSecret = builder.AddParameter("frontend-client-secret", secret
 
 var username = builder.AddParameter("keycloak-username");
 var password = builder.AddParameter("keycloak-password", secret: true);
-var keycloak = builder.AddKeycloak("keycloak", 8080, username, password)
+var keycloak = builder.AddKeycloak("keycloak", 8084, username, password)
                                 .WithDataVolume()
                                 .WithExternalHttpEndpoints()
                                 .RunWithHttpsDevCertificate();
@@ -27,12 +28,13 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, username, password)
 
 var sqlPassword = builder.AddParameter("sql-password", secret: true);
 
-var sql = builder.AddSqlServer("weather-db-server", sqlPassword, 61928)
+var sql = builder.AddSqlServer("weather-db-server", sqlPassword, 1433)
                  .AddDatabase("weather-db");
 
 var weatherapi = builder.AddProject<Projects.Faug_Demo_Weather_Api>("weather-api")
-           .WithReference(keycloak)
-           .WithExternalHttpEndpoints()
+           .WithHttpEndpoint(port: 1080, name: "weather-api-http")
+           .WithHttpsEndpoint(port: 1443, name: "weather-api-https")        
+           .WithReference(keycloak)           
            .WaitFor(keycloak)
            .WithReference(sql)
            .WaitFor(sql);
@@ -42,7 +44,8 @@ var weatherapi = builder.AddProject<Projects.Faug_Demo_Weather_Api>("weather-api
 var redis = builder.AddRedis("location-cache");
 
 var location = builder.AddProject<Projects.Faug_Demo_Location_Api>("location-api")
-           .WithExternalHttpEndpoints()
+           .WithHttpEndpoint(port: 2080)
+           .WithHttpsEndpoint(port: 2443)
            .WithReference(keycloak)
            .WaitFor(keycloak)
            .WithReference(redis)
@@ -51,7 +54,8 @@ var location = builder.AddProject<Projects.Faug_Demo_Location_Api>("location-api
 //************FRONTEND************
 
 var frontend = builder.AddProject<Projects.Faug_Demo_Frontend>("frontend")
-       .WithExternalHttpEndpoints()
+       .WithHttpEndpoint(port: 3080, name: "frontend-http")
+       .WithHttpsEndpoint(port: 3443, name: "frontend-https")
        .WaitFor(keycloak)
        .WithReference(keycloak)
        .WaitFor(weatherapi)

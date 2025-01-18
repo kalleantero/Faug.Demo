@@ -1,5 +1,4 @@
 using Faug.Demo.Frontend.Extensions;
-using Faug.Demo.ServiceDefaults;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
+using Faug.Demo.ServiceDefaults;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,7 +65,7 @@ builder.Services.AddAuthentication(options =>
         options.RequireHttpsMetadata = builder.Environment.IsDevelopment() ? true : true;
         options.ClientId = "frontend";
         options.ResponseType = OpenIdConnectResponseType.Code;
-        options.ClientSecret = "MEFwmLJjOBCVc2XdxbXimQHBeC0CDLsB";
+        options.ClientSecret = "rnXh20LiP4Yrk3O3lF6M2z2HzBdjIPx0";
         options.Scope.Add("openid");
         options.Scope.Add("profile");
         options.Scope.Add("offline_access");

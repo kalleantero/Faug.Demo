@@ -44,7 +44,7 @@ namespace Faug.Demo.Frontend.Extensions
 
                 // properties.RedirectUri = BuildRedirectUri(httpContext, redirectUri);
 
-                properties.RedirectUri = "https://localhost:8158";
+                properties.RedirectUri = "https://localhost:3443";
 
 
                 //This needs to be set to true, due to reverse proxies causing application to not see this as https even though it is. 
