@@ -21,12 +21,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthentication()
                 .AddKeycloakJwtBearer(
-                    serviceName: "keycloak",
+                    serviceName: "keycloak-idp",
                     realm: "master",
                     options =>
                     {
                         //options.Audience = "company.api";
-                        options.Authority = "https://keycloak/realms/master";
+                        options.Authority = "https://keycloak-idp/realms/master";
 
                         options.RequireHttpsMetadata = builder.Environment.IsDevelopment() ? true : true;
                         options.TokenValidationParameters = new TokenValidationParameters

@@ -2,6 +2,7 @@ using Aspire.Hosting;
 using Azure.Provisioning;
 using Faug.Demo.AppHost.Util;
 using k8s.Models;
+using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -15,53 +16,61 @@ var frontendClientSecret = builder.AddParameter("frontend-client-secret", secret
     .WithGeneratedDefault(new() { MinLength = 32, Special = false });
 */
 
+var httpPort = 80;
+var httpsPort = 443;
+
 //************KEYCLOAK************
+
+//KeyCloak needs more configuration to work in Azure (HTTPS-configuration)!
+
 
 var username = builder.AddParameter("keycloak-username");
 var password = builder.AddParameter("keycloak-password", secret: true);
-var keycloak = builder.AddKeycloak("keycloak", 8084, username, password)
+var keycloak = builder.AddKeycloak("keycloak-idp",null, username, password)
                                 .WithDataVolume()
-                                .WithExternalHttpEndpoints()
-                                .RunWithHttpsDevCertificate();
+                                .WithExternalHttpEndpoints();
 
+if (builder.Environment.IsDevelopment() && !builder.ExecutionContext.IsPublishMode)
+{
+    keycloak.RunWithHttpsDevCertificate();
+}
 //************WEATHER API************
 
 var sqlPassword = builder.AddParameter("sql-password", secret: true);
-
 var sql = builder.AddSqlServer("weather-db-server", sqlPassword, 1433)
                  .AddDatabase("weather-db");
 
 var weatherapi = builder.AddProject<Projects.Faug_Demo_Weather_Api>("weather-api")
-           .WithHttpEndpoint(port: 1080, name: "weather-api-http")
-           .WithHttpsEndpoint(port: 1443, name: "weather-api-https")        
            .WithReference(keycloak)           
            .WaitFor(keycloak)
            .WithReference(sql)
-           .WaitFor(sql);
+           .WaitFor(sql)
+           .WithHttpEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 80 : 1080)).WithExternalHttpEndpoints() // Ingress;
+           .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 1443)).WithExternalHttpEndpoints();
 
 //************LOCATION API************
 
 var redis = builder.AddRedis("location-cache");
 
-var location = builder.AddProject<Projects.Faug_Demo_Location_Api>("location-api")
-           .WithHttpEndpoint(port: 2080)
-           .WithHttpsEndpoint(port: 2443)
+var location = builder.AddProject<Projects.Faug_Demo_Location_Api>("location-api")      
            .WithReference(keycloak)
            .WaitFor(keycloak)
            .WithReference(redis)
-           .WaitFor(redis);
+           .WaitFor(redis)
+           .WithHttpEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 80 : 2080)).WithExternalHttpEndpoints()
+           .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 2443)).WithExternalHttpEndpoints();
 
 //************FRONTEND************
 
 var frontend = builder.AddProject<Projects.Faug_Demo_Frontend>("frontend")
-       .WithHttpEndpoint(port: 3080, name: "frontend-http")
-       .WithHttpsEndpoint(port: 3443, name: "frontend-https")
        .WaitFor(keycloak)
        .WithReference(keycloak)
        .WaitFor(weatherapi)
        .WithReference(weatherapi)
        .WaitFor(location)
-       .WithReference(location);
+       .WithReference(location)
+       .WithHttpEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 80 : 3080)).WithExternalHttpEndpoints()
+       .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 3443)).WithExternalHttpEndpoints();
 
 //************CONSOLE APP************
 

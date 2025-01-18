@@ -58,15 +58,15 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
 })
 .AddKeycloakOpenIdConnect(
-    serviceName: "keycloak",
+    serviceName: "keycloak-idp",
     realm: "master",
     options =>
     {
-        options.Authority = "https://keycloak/realms/master";
+        options.Authority = "https://keycloak-idp/realms/master";
         options.RequireHttpsMetadata = builder.Environment.IsDevelopment() ? true : true;
         options.ClientId = "frontend";
         options.ResponseType = OpenIdConnectResponseType.Code;
-        options.ClientSecret = "rnXh20LiP4Yrk3O3lF6M2z2HzBdjIPx0";
+        options.ClientSecret = "57diAVISwZ5huD3myxuwGZHCiT1yOwNK";
         options.Scope.Add("openid");
         options.Scope.Add("profile");
         options.Scope.Add("offline_access");

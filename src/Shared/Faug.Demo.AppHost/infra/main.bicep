@@ -15,6 +15,8 @@ param principalId string = ''
 @secure()
 param keycloak_password string
 param keycloak_username string
+@secure()
+param sql_password string
 
 var tags = {
   'azd-env-name': environmentName
@@ -36,15 +38,6 @@ module resources 'resources.bicep' = {
   }
 }
 
-module sql_mybusiness 'sql-mybusiness/sql-mybusiness.module.bicep' = {
-  name: 'sql-mybusiness'
-  scope: rg
-  params: {
-    location: location
-    principalId: resources.outputs.MANAGED_IDENTITY_PRINCIPAL_ID
-    principalName: resources.outputs.MANAGED_IDENTITY_NAME
-  }
-}
 output MANAGED_IDENTITY_CLIENT_ID string = resources.outputs.MANAGED_IDENTITY_CLIENT_ID
 output MANAGED_IDENTITY_NAME string = resources.outputs.MANAGED_IDENTITY_NAME
 output AZURE_LOG_ANALYTICS_WORKSPACE_NAME string = resources.outputs.AZURE_LOG_ANALYTICS_WORKSPACE_NAME
@@ -54,6 +47,5 @@ output AZURE_CONTAINER_REGISTRY_NAME string = resources.outputs.AZURE_CONTAINER_
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_NAME
 output AZURE_CONTAINER_APPS_ENVIRONMENT_ID string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_ID
 output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN
-output SERVICE_KEYCLOAK_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKDATA_NAME string = resources.outputs.SERVICE_KEYCLOAK_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKDATA_NAME
-output SQL_MYBUSINESS_SQLSERVERFQDN string = sql_mybusiness.outputs.sqlServerFqdn
+output SERVICE_KEYCLOAK_IDP_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKIDPDATA_NAME string = resources.outputs.SERVICE_KEYCLOAK_IDP_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKIDPDATA_NAME
 output AZURE_VOLUMES_STORAGE_ACCOUNT string = resources.outputs.AZURE_VOLUMES_STORAGE_ACCOUNT

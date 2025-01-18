@@ -11,6 +11,9 @@
       "keycloak_username": {
         "value": "${AZURE_KEYCLOAK_USERNAME}"
       },
+      "sql_password": {
+        "value": "${AZURE_SQL_PASSWORD}"
+      },
       "environmentName": {
         "value": "${AZURE_ENV_NAME}"
       },

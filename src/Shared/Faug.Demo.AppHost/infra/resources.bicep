@@ -62,9 +62,9 @@ resource storageVolumeFileService 'Microsoft.Storage/storageAccounts/fileService
   name: 'default'
 }
 
-resource keycloakFaugdemoapphost32c5b5b8c5KeycloakDataFileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-05-01' = {
+resource keycloakIdpFaugdemoapphost32c5b5b8c5KeycloakIdpDataFileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-05-01' = {
   parent: storageVolumeFileService
-  name: take('${toLower('keycloak')}-${toLower('faugdemoapphost32c5b5b8c5keycloakdata')}', 60)
+  name: take('${toLower('keycloak-idp')}-${toLower('faugdemoapphost32c5b5b8c5keycloakidpdata')}', 60)
   properties: {
     shareQuota: 1024
     enabledProtocols: 'SMB'
@@ -107,12 +107,12 @@ resource explicitContributorUserRoleAssignment 'Microsoft.Authorization/roleAssi
   }
 }
 
-resource keycloakFaugdemoapphost32c5b5b8c5KeycloakDataStore 'Microsoft.App/managedEnvironments/storages@2023-05-01' = {
+resource keycloakIdpFaugdemoapphost32c5b5b8c5KeycloakIdpDataStore 'Microsoft.App/managedEnvironments/storages@2023-05-01' = {
   parent: containerAppEnvironment
-  name: take('${toLower('keycloak')}-${toLower('faugdemoapphost32c5b5b8c5keycloakdata')}', 32)
+  name: take('${toLower('keycloak-idp')}-${toLower('faugdemoapphost32c5b5b8c5keycloakidpdata')}', 32)
   properties: {
     azureFile: {
-      shareName: keycloakFaugdemoapphost32c5b5b8c5KeycloakDataFileShare.name
+      shareName: keycloakIdpFaugdemoapphost32c5b5b8c5KeycloakIdpDataFileShare.name
       accountName: storageVolume.name
       accountKey: storageVolume.listKeys().keys[0].value
       accessMode: 'ReadWrite'
@@ -131,5 +131,5 @@ output AZURE_CONTAINER_REGISTRY_NAME string = containerRegistry.name
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = containerAppEnvironment.name
 output AZURE_CONTAINER_APPS_ENVIRONMENT_ID string = containerAppEnvironment.id
 output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = containerAppEnvironment.properties.defaultDomain
-output SERVICE_KEYCLOAK_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKDATA_NAME string = keycloakFaugdemoapphost32c5b5b8c5KeycloakDataStore.name
+output SERVICE_KEYCLOAK_IDP_VOLUME_FAUGDEMOAPPHOST32C5B5B8C5KEYCLOAKIDPDATA_NAME string = keycloakIdpFaugdemoapphost32c5b5b8c5KeycloakIdpDataStore.name
 output AZURE_VOLUMES_STORAGE_ACCOUNT string = storageVolume.name
