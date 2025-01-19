@@ -1,11 +1,9 @@
 using Aspire.Hosting;
 using Azure.Provisioning;
 using Faug.Demo.AppHost.Util;
-using k8s.Models;
 using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
-
 
 /*
 var keycloakRealmName = builder.AddParameter("keycloak-realm");
@@ -34,6 +32,64 @@ if (builder.Environment.IsDevelopment() && !builder.ExecutionContext.IsPublishMo
 {
     keycloak.RunWithHttpsDevCertificate();
 }
+
+//************SHARED************
+
+
+var secrets = builder.ExecutionContext.IsPublishMode
+    ? builder.AddAzureKeyVault("secrets")
+    : builder.AddConnectionString("secrets");
+
+
+//https://learn.microsoft.com/en-us/dotnet/aspire/azure/integrations-overview?tabs=dotnet-cli#azureprovisioning-customization
+
+/*
+ * 
+ * AZURE.PROVISIONING NUGET PACKAGES
+
+var storage = builder.AddAzureStorage("storage")
+    .ConfigureInfrastructure(infra =>
+    {
+        var resources = infra.GetProvisionableResources();
+
+        var storageAccount = resources.OfType<StorageAccount>().Single();
+
+        storageAccount.Sku = new StorageSku
+        {
+            Name = sku.AsProvisioningParameter(infra)
+        };
+    });
+*/
+
+/*
+var acr = builder.AddAzureInfrastructure("acae", infra =>
+{
+    var registry = new ContainerRegistryService("acr")
+    {
+        Sku = new()
+        {
+            Name = ContainerRegistrySkuName.Standard
+        },
+    };
+    infra.Add(registry);
+
+    var output = new ProvisioningOutput("registryName", typeof(string))
+    {
+        Value = registry.Name
+    };
+    infra.Add(output);
+});
+*/
+
+/*
+var acae = builder.AddAzureContainerAppsInfrastructure();
+
+builder.AddBicepTemplate(
+    name: "storage",
+    bicepFile: "../infra/storage.bicep");
+*/
+
+
 //************WEATHER API************
 
 var sqlPassword = builder.AddParameter("sql-password", secret: true);
@@ -46,19 +102,45 @@ var weatherapi = builder.AddProject<Projects.Faug_Demo_Weather_Api>("weather-api
            .WithReference(sql)
            .WaitFor(sql)
            .WithHttpEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 80 : 1080)).WithExternalHttpEndpoints() // Ingress;
-           .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 1443)).WithExternalHttpEndpoints();
+           .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 1443)).WithExternalHttpEndpoints()
+           .PublishAsAzureContainerApp((module, app) =>
+           {
+                //https://github.com/dotnet/aspire/discussions/4831
+
+                //app.WorkloadProfileName = "";
+
+                app.BicepIdentifier = "acalocationapi";
+                app.Tags.Add("custom_tag", new BicepValue<string>("dw"));
+                // Scale to 0
+                app.Template.Scale.MinReplicas = 4;
+            });
 
 //************LOCATION API************
 
+
+//scaling config
+//workload profiles
+
 var redis = builder.AddRedis("location-cache");
 
-var location = builder.AddProject<Projects.Faug_Demo_Location_Api>("location-api")      
+var location = builder.AddProject<Projects.Faug_Demo_Location_Api>("location-api")
            .WithReference(keycloak)
            .WaitFor(keycloak)
            .WithReference(redis)
            .WaitFor(redis)
            .WithHttpEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 80 : 2080)).WithExternalHttpEndpoints()
-           .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 2443)).WithExternalHttpEndpoints();
+           .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 2443)).WithExternalHttpEndpoints()
+           .PublishAsAzureContainerApp((module, app) =>
+           {
+               //https://github.com/dotnet/aspire/discussions/4831
+
+               //app.WorkloadProfileName = "";
+
+               app.BicepIdentifier = "acalocationapi";
+               app.Tags.Add("custom_tag", new BicepValue<string>("dw"));
+               // Scale to 0
+               app.Template.Scale.MinReplicas = 4;
+           });
 
 //************FRONTEND************
 
@@ -70,7 +152,18 @@ var frontend = builder.AddProject<Projects.Faug_Demo_Frontend>("frontend")
        .WaitFor(location)
        .WithReference(location)
        .WithHttpEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 80 : 3080)).WithExternalHttpEndpoints()
-       .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 3443)).WithExternalHttpEndpoints();
+       .WithHttpsEndpoint(port: (builder.ExecutionContext.IsPublishMode || !builder.Environment.IsDevelopment() ? 443 : 3443)).WithExternalHttpEndpoints()
+       .PublishAsAzureContainerApp((module, app) =>
+        {
+            //https://github.com/dotnet/aspire/discussions/4831
+
+            //app.WorkloadProfileName = "";
+
+            app.BicepIdentifier = "acalocationapi";
+            app.Tags.Add("custom_tag", new BicepValue<string>("dw"));
+            // Scale to 0
+            app.Template.Scale.MinReplicas = 4;
+        });
 
 //************CONSOLE APP************
 
