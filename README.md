@@ -1,5 +1,7 @@
 # Faug.Demo
 
+This solution was used for demo purposes in the Finland Azure User Group on 28.1.2025.
+
 ## .NET Aspire Solution Architecture
 
 ```mermaid
