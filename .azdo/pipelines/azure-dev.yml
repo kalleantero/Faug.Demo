@@ -6,7 +6,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  DEV_SERVICE_CONNECTION: AISMYBU DevOps MyBusiness Dev
+  DEV_SERVICE_CONNECTION: DevEnvConnection
 
 stages:
   - stage: dev
