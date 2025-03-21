@@ -1,0 +1,18 @@
+steps:
+  - task: setup-azd@0
+    displayName: Install azd
+  - pwsh: |
+      azd config set auth.useAzCliAuth "true"
+      azd config set alpha.aca.persistDomains on
+    displayName: Configure AZD to Use AZ CLI Authentication.
+  - task: UseDotNet@2 #This is needed until windows-latest hosted agent will support .net 9
+    inputs:
+      packageType: 'sdk'
+      version: '9.0.x'
+      installationPath: '$(Agent.ToolsDirectory)/dotnet'
+  - task: Bash@3
+    displayName: Install .NET Aspire workload
+    inputs:
+      targetType: 'inline'
+      script: |
+        dotnet workload install aspire

@@ -1,0 +1,25 @@
+# Run when commits are pushed to master
+trigger:
+  - master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  DEV_SERVICE_CONNECTION: AISMYBU DevOps MyBusiness Dev
+
+stages:
+  - stage: dev
+    displayName: Dev Environment
+    variables:
+      - group: aspire-faug-demo
+    jobs:
+      - job:
+        steps:
+          - template: templates/azd-setup.yaml
+          - template: templates/azd-provision.yaml
+            parameters:
+              serviceConnection: ${{variables.DEV_SERVICE_CONNECTION}}
+          - template: templates/azd-deploy.yaml
+            parameters:
+              serviceConnection: ${{variables.DEV_SERVICE_CONNECTION}}

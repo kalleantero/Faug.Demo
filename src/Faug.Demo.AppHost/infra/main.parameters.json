@@ -1,0 +1,34 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "principalId": {
+        "value": "${AZURE_PRINCIPAL_ID}"
+      },
+      "frontend_client_secret": {
+        "value": "${AZURE_FRONTEND_CLIENT_SECRET}"
+      },
+      "keycloak_password": {
+        "value": "${AZURE_KEYCLOAK_PASSWORD}"
+      },
+      "keycloak_username": {
+        "value": "${AZURE_KEYCLOAK_USERNAME}"
+      },
+      "weather_db_admin_password": {
+        "value": "${AZURE_WEATHER_DB_ADMIN_PASSWORD}"
+      },
+      "weather_db_name": {
+        "value": "${AZURE_WEATHER_DB_NAME}"
+      },
+      "weather_db_server_name": {
+        "value": "${AZURE_WEATHER_DB_SERVER_NAME}"
+      },
+      "environmentName": {
+        "value": "${AZURE_ENV_NAME}"
+      },
+      "location": {
+        "value": "${AZURE_LOCATION}"
+      }
+    }
+  }
+  
